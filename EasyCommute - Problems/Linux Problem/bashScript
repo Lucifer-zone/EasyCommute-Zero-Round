@@ -13,16 +13,18 @@ do
 sudo pip install "$var" 
 done
 
-#read installed packages in system and store them in 
+#read installed packages in system and store them in Installedpackages array
 while IFS='' read -r line; do    Installedpackages+=("$line"); done < <(pip freeze)
 
 for var2 in "${jsonPackages[@]}"
 do
+#check if Installedpackages contain required jsonPackages,if no insert into failedInstall
 if [[ ! " ${Installedpackages[@]} " =~ " ${var2} " ]]; then
     failedInstall+=("$var2")
 fi
 done
 
+#check if failedInstall is empty
 if ((!${#failedInstall[@]})); then
 	printf "Success\n"
 else
