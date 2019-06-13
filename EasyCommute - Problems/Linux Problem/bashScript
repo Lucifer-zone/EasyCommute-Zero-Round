@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo hello!!
+printf "Please Enter the json File name(with Extension)\n"
+read jsonName
+
+#read json file and store packages in jsonPackages array
+while IFS='' read -r line; do    jsonPackages+=("$line"); done < <(jq -r '.Dependencies[]' $jsonName)
+
+#install packages in jsonPackages
+for var in "${jsonPackages[@]}"
+do
+sudo pip install "$var" 
+done
+
+#read installed packages in system and store them in 
+while IFS='' read -r line; do    Installedpackages+=("$line"); done < <(pip freeze)
+
+for var2 in "${jsonPackages[@]}"
+do
+if [[ ! " ${Installedpackages[@]} " =~ " ${var2} " ]]; then
+    failedInstall+=("$var2")
+fi
+done
+
+if ((!${#failedInstall[@]})); then
+	printf "Success\n"
+else
+	printf "Failed Installations: \n"
+	printf "%s\n" ${failedInstall[@]}
+fi
+
